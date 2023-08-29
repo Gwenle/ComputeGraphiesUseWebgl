@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            height: 400px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
+    <script type="module">
+        import {Matrix4} from "../utils/vtMatrix.js";
+        let pointNum=50;
+        const gl = canvas.getContext('webgl');
+        // console.log(gl, 'gl')
+        const createShader = (type, source) => {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            const compileState = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+            if (!compileState) {
+                const err = gl.getShaderInfoLog(shader);
+                console.log('着色器编译报错信息为:' + err);
+                gl.deleteShader(shader);
+                return null
+            }
+            return shader
+        }
+        function calculSierPoints(n, arr) {
+        let getNpointofArr = (i) => {
+            return {
+                x: arr[i * 3],
+                y: arr[i * 3 + 1],
+                z: arr[i * 3 + 2]
+            }
+        };
+        let setNpointofArr = (i, po) => {
+            arr[i * 3] = po.x;
+            arr[i * 3 + 1] = po.y;
+            arr[i * 3 + 2] = po.z;
+        };
+        let CalMidPoint = (p1, p2) => {
+            return {
+                x: (p1.x + p2.x) / 2,
+                y: (p1.y + p2.y) / 2,
+                z: (p1.z + p2.z) / 2,
+            }
+        };
+        let nP=4;
+        let recurCalMidPoints=(recurDep,Pa,Pb,Pc)=>{
+            if(recurDep===0){
+                setNpointofArr(nP++,Pa);
+                setNpointofArr(nP++,Pb);
+                setNpointofArr(nP++,Pc);
+                return;
+            }
+            let Pab=CalMidPoint(Pa,Pb);
+            let Pbc=CalMidPoint(Pb,Pc);
+            let Pac=CalMidPoint(Pa,Pc);
+            let v=recurDep-1;
+            recurCalMidPoints(v,Pa,Pab,Pac);
+            recurCalMidPoints(v,Pb,Pbc,Pab);
+            recurCalMidPoints(v,Pc,Pbc,Pac);
+        }
+        /*
+        let startPoint = CalMidPoint(getNpointofArr(0), getNpointofArr(1));
+        setNpointofArr(4, startPoint);
+        for (let i = 0; i < n - 1; i++) {
+            let f = Math.floor(Math.random() * 4);
+            startPoint = CalMidPoint(getNpointofArr(f), startPoint);
+            arr.push(startPoint.x, startPoint.y, startPoint.z); 
+        }
+        */
+        let recurDepI=6;
+        recurCalMidPoints(recurDepI,getNpointofArr(0),getNpointofArr(1),getNpointofArr(2));
+        pointNum=nP;
+        return arr;
+    }
+        const VSHADER_SOURCE =
+            'uniform mat4 u_ViewMatrix;\n'+
+            'attribute vec4 a_Position;\n' +
+            'void main() {\n' +
+            '   gl_Position = a_Position;\n' +
+            '}\n'
+        var FSHADER_SOURCE =
+            'precision mediump float;\n' +
+            'uniform float u_Width;\n' +
+            'uniform float u_Height;\n' +
+            'void main() {\n' +
+            '  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);\n' +
+            '}\n';
+        // createShader(gl.FRAGMENT_SHADER, FSHADER_SOURCE)
+        const ceateProgram = (vshadher, fshader) => {
+            const vertexShader = createShader(gl.VERTEX_SHADER, vshadher);
+            const fragmentShader = createShader(gl.FRAGMENT_SHADER, fshader);
+            console.log(vertexShader, fragmentShader)
+            if (!vertexShader || !fragmentShader) {
+                return null
+            }
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            const linkState = gl.getProgramParameter(program, gl.LINK_STATUS);
+            if (!linkState) {
+                const err = gl.getProgramInfoLog(program);
+                console.log('链接报错'+err)
+                gl.deleteShader(vertexShader)
+                gl.deleteShader(fragmentShader);
+                gl.deleteProgram(program);
+                alert(66)
+            }
+            // alert(program)
+            // console.log(program, 'program')
+            gl.program = program
+            gl.useProgram(program);
+        }
+        
+        ceateProgram(VSHADER_SOURCE,FSHADER_SOURCE);
+        console.log(gl.program, 'gl.program')
+        const initBuffer = () => {
+            const buffer = gl.createBuffer();
+            const data = new Float32Array(
+                calculSierPoints(pointNum, [
+            0.0, 1.0, 0.0,
+            -1.0, -1.0, 0.0,
+            1.0, -1.0, 0.0,
+            0.0,-0.25,-1.0
+        ]));
+            const size = data.BYTES_PER_ELEMENT;
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+            const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+            // console.log(a_Position, 'a_Position')
+
+
+            const u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+
+            const viewMatrix = new Matrix4();
+            viewMatrix.setLookAt(0, 0, 0.8, 0, 0, 0, 0, 1, 0);
+            //viewMatrix.setLookAt(1, 1, 1, 1, 1, 1, 1, 1, 1);
+
+            gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements)
+
+
+            // gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+            /*
+                void gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
+            参数
+            index
+            指定要修改的顶点属性的索引
+            size
+            指定每个顶点属性的组成数量，必须是1，2，3或4。 因为选为2就变成两个坐标确定一个顶点了，故而会有x轴和y轴
+            type
+            指定数组中每个元素的数据类型
+            normalized
+            当转换为浮点数时是否应该将整数数值归一化到特定的范围
+            stride
+            一个GLsizei，以字节为单位指定连续顶点属性开始之间的偏移量(即数组中一行长度)。不能大于255。如果stride为0，则假定该属性是紧密打包的，即不交错属性，每个属性在一个单独的块中，下一个顶点的属性紧跟当前顶点之后。
+            offset
+            GLintptr (en-US)指定顶点属性数组中第一部分的字节偏移量。必须是类型的字节长度的倍数
+            */
+            gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+            const u_width = gl.getUniformLocation(gl.program, 'u_Width');
+                            const u_Height = gl.getUniformLocation(gl.program, 'u_Height');
+            // console.log(u_Height, 'u_Height')
+            // console.log(u_width, 'u_Height')
+            gl.uniform1f(u_width, gl.drawingBufferWidth);
+            gl.uniform1f(u_Height, gl.drawingBufferHeight);
+            // console.log(gl.drawingBufferHeight, 'gl.drawingBufferHeight')
+            gl.enableVertexAttribArray(a_Position);
+            // gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            // console.log(gl.drawingBufferHeight, 'drawingBufferHeight')
+        }
+        initBuffer()
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        const startPointM=4;
+        gl.drawArrays(gl.TRIANGLES, startPointM, pointNum-startPointM)
+    </script>
+</body>
+
+</html>
