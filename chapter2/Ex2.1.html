@@ -20,6 +20,19 @@
     <script type="module">
         import {Matrix4} from "../utils/vtMatrix.js";
         let pointNum=50;
+        var randomSortArr=(arr)=>{
+            let n=arr.length;
+            let newArr=[];
+            let nArr=Array.from({length: n}, (v, k) => k+1); ;
+            //console.log(nArr);
+            for(let i=0;i<n;i++){
+                let fn=nArr.length;
+                let ri=nArr[Math.floor(Math.random()*fn)]-1;
+                newArr.push(arr[ri]);
+                nArr.splice(ri,1);
+            }
+            return newArr;
+        }
         const gl = canvas.getContext('webgl');
         // console.log(gl, 'gl')
         const createShader = (type, source) => {
@@ -82,12 +95,14 @@
             let Pbd=CalMidPoint(Pd,Pb);
             let Pdc=CalMidPoint(Pd,Pc);
             let Pda=CalMidPoint(Pa,Pd);
+            [Pab,Pbc,Pac,Pbd,Pdc,Pda]=randomSortArr([Pab,Pbc,Pac,Pbd,Pdc,Pda]);
             let v=recurDep-1;
             recurCalMidPoints(v,Pa,Pab,Pac,Pda);
             recurCalMidPoints(v,Pb,Pbc,Pab,Pbd);
             recurCalMidPoints(v,Pc,Pbc,Pac,Pdc);
             recurCalMidPoints(v,Pd,Pdc,Pda,Pbd);
         }
+        
         /*
         let startPoint = CalMidPoint(getNpointofArr(0), getNpointofArr(1));
         setNpointofArr(4, startPoint);
@@ -97,7 +112,7 @@
             arr.push(startPoint.x, startPoint.y, startPoint.z); 
         }
         */
-        let recurDepI=5;
+        let recurDepI=6;
         recurCalMidPoints(recurDepI,getNpointofArr(0),getNpointofArr(1),getNpointofArr(2),getNpointofArr(3));
         pointNum=nP;
         return arr;
