@@ -1,0 +1,49 @@
+class TurtleGraph{
+    TurtleGraph(CanvasId){
+        canvas=document.getElementById(CanvasId);
+        this.gl=canvas.getContext("webgl");
+        init(0,0,Math.PI/2); 
+        //todo init webgl
+    }
+    init(x,y,theta){
+        if(theta>2*this.pi){
+            theta=theta%(2*this.pi);
+        }
+        this.x=x;
+        this.y=y;
+        this.theta=theta;
+    }
+    forward(distance){
+        xOffset=distance*Math.cos(this.theta);
+        yOffset=distance*Math.sin(this.theta);
+        nx=x+xOffset;
+        ny=y+yOffset;
+        let drawLine=(x,y,nx,ny)=>{
+
+        };
+        if(this.isDraw){
+            drawLine(this.x,this.y,nx,ny);
+        }
+        this.x,this.y=nx,ny;
+    }
+    isDraw=false;
+    pen(up_down){
+        this.isDraw=up_down;
+    }
+    right(angle){
+        ntheta=this.theta-angle;
+        if(ntheta<0){
+            ntheta=ntheta%(2*this.pi)+2*this.pi;
+        }
+        this.theta=ntheta;
+    }
+    left(angle){
+        ntheta=this.theta+angle;
+        if(ntheta>2*this.pi){
+            ntheta=ntheta%(2*this.pi)
+        }
+        this.theta=ntheta;
+    }
+    gl;x;y;theta;
+    pi=Math.PI;
+}
