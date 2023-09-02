@@ -34,7 +34,41 @@
             //'  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);\n' +
             '  gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n' +
             '}\n';
-        
+        const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE);
+        //build base equilateral triangle
+        turtle.init(-1.0,-1.0,turtle.pi/3);
+        turtle.pen(true);
+        turtle.forward(2);
+        turtle.right(turtle.pi*2/3);
+        turtle.forward(2);
+        turtle.right(turtle.pi*2/3);
+        turtle.forward(2);
+
+        let subdivison=(n,x1,y1,x2,y2,x3,y3)=>{
+            if(n===0){
+                return ;
+            }
+            let x12=(x1+x2)/2;
+            let y12=(y1+y2)/2;
+            let x23=(x2+x3)/2;
+            let y23=(y2+y3)/2;
+            let x13=(x1+x3)/2;
+            let y13=(y1+y3)/2;
+            let distance=Math.sqrt((x12-x23)*(x12-x23)+(y12-y23)*(y12-y23));
+            console.log(distance);
+            turtle.init(x12,y12,0);
+            turtle.forward(distance);
+            turtle.right(turtle.pi*2/3);
+            turtle.forward(distance);
+            turtle.right(turtle.pi*2/3);
+            turtle.forward(distance);
+
+            subdivison(n-1,x1,y1,x12,y12,x13,y13);
+            subdivison(n-1,x12,y12,x2,y2,x23,y23);
+            subdivison(n-1,x13,y13,x23,y23,x3,y3);
+        };
+
+        subdivison(5,-1.0,-1.0,0,Math.sqrt(3)-1,1.0,-1.0);
     </script>
 </body>
 

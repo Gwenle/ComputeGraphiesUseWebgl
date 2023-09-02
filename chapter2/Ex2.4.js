@@ -76,7 +76,7 @@ class TurtleGraph{
         }
         //this.x,this.y=nx,ny
         [this.x,this.y]=[nx,ny];
-        console.log(this.data);
+        //console.log(this.data);
     }
     isDraw=false;
     pen(up_down){
