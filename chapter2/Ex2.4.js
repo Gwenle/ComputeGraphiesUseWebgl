@@ -4,6 +4,10 @@ class TurtleGraph{
         console.log("!"+canvasN);
         this.gl=canvasN.getContext("webgl");
         let gl=this.gl;
+        if(VSHADER_SOURCE===null)
+        {
+            return;
+        }
         this.init(0,0,Math.PI/2); 
         //this.data=new Float32Array([0.0,0.0]);
         //init webgl create Shader and Program
