@@ -85,8 +85,8 @@ class TurtleGraph {
         let gl=this.gl;
         let n=array3d.length;
         let m=array3d[0].length;
-        let boxLength=1.0/(n-1);
-        let boxWidth=1.0/(m-1);
+        let boxLength=1.0/n;
+        let boxWidth=1.0/m;
         let pointBox=[];
         for(let i=0;i<n;i++)
             for(let j=0;j<m;j++){
@@ -99,7 +99,20 @@ class TurtleGraph {
                         pointBox.push(-0.5+(i+1)*boxLength,-0.5+j*boxLength);
                     }
                 }
-
+        for(let i=0;i<n;i++)
+        {
+            if(array3d[i][m-1][3]===0){
+                        pointBox.push(-0.5+i*boxLength,-0.5+m*boxWidth);
+                        pointBox.push(-0.5+(i+1)*boxLength,-0.5+m*boxWidth);
+            }
+        }
+        for(let j=0;j<m;j++)
+        {
+            if(array3d[n-1][j][2]===0){
+                        pointBox.push(-0.5+n*boxLength,-0.5+j*boxWidth);
+                        pointBox.push(-0.5+n*boxLength,-0.5+(j+1)*boxWidth);
+            }
+        }
                 this.gl.clear(gl.COLOR_BUFFER_BIT);
                 const buffer = gl.createBuffer();
                 const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
@@ -151,7 +164,7 @@ class TurtleGraph {
 
         let possibility=[[0,0]];
         let randomPick=(arr)=>{
-            let lp=possibility.length;
+            let lp=arr.length;
             let k=Math.floor(Math.random()*lp);
             let re= arr[k];
             arr.splice(k,1);
