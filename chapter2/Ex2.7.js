@@ -83,6 +83,14 @@ class TurtleGraph {
         [this.x, this.y] = [nx, ny];
         //console.log(this.data);
     }
+    drawMaze(array3d){
+        let n=array3d.length;
+        let m=array3d[0].length;
+        let boxLength=1.0/(n-1);
+        let boxWidth=1.0/(m-1);
+        for(let i=0;i<n;i++)
+            for(let j=0;j<m;j++);
+    }
     isDraw = false;
     pen(up_down) {
         this.isDraw = up_down;
@@ -123,9 +131,76 @@ class TurtleGraph {
         //init array3d
 
         let possibility=[[0,0]];
-        while (possibility.length>0){
+        let randomPick=(arr)=>{
             let lp=possibility.length;
-            let k=Math.random()*lp
+            let k=Math.floor(Math.random()*lp);
+            let re= arr[k];
+            arr.splice(k,1);
+            return re;
+        }
+        while (possibility.length>0){
+            let k=randomPick(possibility);
+            [r,c]=[k[0],k[1]];
+            array3d[r][c][4]=1;
+
+            let check=[];
+            if(r-1>=0){
+                if(array3d[r-1][c][4]===0)
+                {
+                    possibility.push([r-1,c]);
+                    array3d[r-1][c][4]=2;
+                }else if(array3d[r-1][c][4]===1){
+                    check.push('Up');
+                }
+            }
+            if(r+1<n){
+                if(array3d[r+1][c][4]===0)
+                {
+                    possibility.push([r+1,c]);
+                    array3d[r+1][c][4]=2;
+                }else if(array3d[r+1][c][4]===1){
+                    check.push('Down');
+                }
+            }
+            if(c-1>=0){
+                if(array3d[r][c-1][4]===0)
+                {
+                    possibility.push([r,c-1]);
+                    array3d[r][c-1][4]=2;
+                }else if(array3d[r][c-1][4]===1){
+                    check.push('Left');
+                }
+            }
+            if(c+1<m){
+                if(array3d[r][c+1][4]===0)
+                {
+                    possibility.push([r,c+1]);
+                    array3d[r][c+1][4]=2;
+                }else if(array3d[r][c+1][4]===1){
+                    check.push('Right');
+                }
+            }
+            let direction=randomPick(check);
+            //break the wall Up left down right
+            switch(direction){
+                case 'Left':
+                    array3d[r][c][1]=1;
+                    array3d[r][c-1][3]=1;
+                    break;
+                case 'Right':
+                    array3d[r][c][3]=1;
+                    array3d[r][c+1][1]=1;
+                    break;
+                case 'Up':
+                    array3d[r][c][0]=1;
+                    array3d[r-1][c][2]=1;
+                    break;
+                case 'Down':
+                    array3d[r][c][2]=1;
+                    array3d[r+1][c][0]=1;
+                    break;
+            }
+
         }
 
         return array3d;
@@ -133,7 +208,7 @@ class TurtleGraph {
         gl; x; y; theta;
         pi = Math.PI;
         data = [];
-    }
+}
 
 let tu = new TurtleGraph(null, null, null);
 console.log(tu.buildMaze(5,4));
