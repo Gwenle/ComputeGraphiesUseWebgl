@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            height: 400px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script src="./Ex2.7.js"></script>
+    <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
+    <script>
+        const VSHADER_SOURCE =
+            //'uniform mat4 u_ViewMatrix;\n'+
+            `attribute vec4 a_Position;\n
+             void main() {\n
+               gl_Position = a_Position;\n
+               gl_PointSize = 10.0;
+            }\n`
+        const FSHADER_SOURCE=
+            'precision mediump float;\n' +
+            //'uniform float u_Width;\n' +
+            //'uniform float u_Height;\n' +
+            'void main() {\n' +
+            //'  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);\n' +
+            '  gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n' +
+            '}\n';
+        const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE);
+        //build base equilateral triangle
+        turtle.drawMaze(turtle.buildMaze(5,8));
+        </script>
+</body>
+
+</html>

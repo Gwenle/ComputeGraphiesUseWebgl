@@ -1,11 +1,9 @@
 class TurtleGraph {
     constructor(CanvasId, VSHADER_SOURCE, FSHADER_SOURCE) {
-        /*
         let canvasN=document.getElementById(CanvasId);
         console.log("!"+canvasN);
         this.gl=canvasN.getContext("webgl");
         let gl=this.gl;
-        */
         if (VSHADER_SOURCE === null) {
             return;
         }
@@ -84,12 +82,33 @@ class TurtleGraph {
         //console.log(this.data);
     }
     drawMaze(array3d){
+        let gl=this.gl;
         let n=array3d.length;
         let m=array3d[0].length;
         let boxLength=1.0/(n-1);
         let boxWidth=1.0/(m-1);
+        let pointBox=[];
         for(let i=0;i<n;i++)
-            for(let j=0;j<m;j++);
+            for(let j=0;j<m;j++){
+                    if(array3d[i][j][0]===0){
+                        pointBox.push(-0.5+i*boxLength,-0.5+j*boxWidth);
+                        pointBox.push(-0.5+i*boxLength,-0.5+(j+1)*boxWidth);
+                    }
+                    if(array3d[i][j][1]===0){
+                        pointBox.push(-0.5+i*boxLength,-0.5+j*boxLength);
+                        pointBox.push(-0.5+(i+1)*boxLength,-0.5+j*boxLength);
+                    }
+                }
+
+                this.gl.clear(gl.COLOR_BUFFER_BIT);
+                const buffer = gl.createBuffer();
+                const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                console.log(pointBox);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointBox), gl.STATIC_DRAW);
+                gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+                gl.enableVertexAttribArray(a_Position);
+                gl.drawArrays(gl.LINES, 0, pointBox.length / 2);
     }
     isDraw = false;
     pen(up_down) {
@@ -140,7 +159,7 @@ class TurtleGraph {
         }
         while (possibility.length>0){
             let k=randomPick(possibility);
-            [r,c]=[k[0],k[1]];
+            let [r,c]=[k[0],k[1]];
             array3d[r][c][4]=1;
 
             let check=[];
@@ -210,5 +229,3 @@ class TurtleGraph {
         data = [];
 }
 
-let tu = new TurtleGraph(null, null, null);
-console.log(tu.buildMaze(5,4));
