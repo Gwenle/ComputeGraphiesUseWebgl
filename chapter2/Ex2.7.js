@@ -95,8 +95,8 @@ class TurtleGraph {
                         pointBox.push(-0.5+i*boxLength,-0.5+(j+1)*boxWidth);
                     }
                     if(array3d[i][j][1]===0){
-                        pointBox.push(-0.5+i*boxLength,-0.5+j*boxLength);
-                        pointBox.push(-0.5+(i+1)*boxLength,-0.5+j*boxLength);
+                        pointBox.push(-0.5+i*boxLength,-0.5+j*boxWidth);
+                        pointBox.push(-0.5+(i+1)*boxLength,-0.5+j*boxWidth);
                     }
                 }
         for(let i=0;i<n;i++)
