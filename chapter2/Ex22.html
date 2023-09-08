@@ -16,7 +16,7 @@
 
 <body>
     <canvas id="canvas"></canvas>
-    <script src="./Ex22.js"></script>
+    <script src="./Ex22.js" ></script>
     <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
     <script>
         let x1,y1;
@@ -36,13 +36,44 @@
                gl_PointSize = 10.0;
             }\n`
         const FSHADER_SOURCE=
-            'precision mediump float;\n' +
-            //'uniform float u_Width;\n' +
-            //'uniform float u_Height;\n' +
-            'void main() {\n' +
-            //'  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);\n' +
-            '  gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n' +
-            '}\n';
+           `precision mediump float;
+            const int Num_Box=310;
+            uniform vec4 u_FragColor;
+            uniform int u_BoxColor[310];
+            uniform float u_Height;            
+            uniform float u_Width;            
+            void main() {
+            //'  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);
+            //'  gl_FragColor = vec4(1.0,0.0,1.0,1.0);
+                 vec4 Exarr[3];
+                 Exarr[0]=vec4(1.0,0.0,1.0,1.0);
+                 Exarr[1]=vec4(1.0,1.0,0.0,1.0);
+                 Exarr[2]=vec4(0.0,0.0,1.0,1.0);
+                 float rx=(gl_FragCoord.x)/u_Width;
+                 float ry=(gl_FragCoord.y)/u_Height;
+                 float vx=0.02;
+                 for(int i=0;i<15;i++)
+                    for(int j=0;j<20;j++)
+                {
+                    float midy=0.5+float(7-i)*vx*2.0;
+                    float midx=(mod(float(i),2.0)>=1.0)? 0.5+float(j-9)*vx*2.0 : 0.5+(float(j-9)+0.5)*vx*2.0;
+                    if(rx>(midx-vx)&&rx<(midx+vx)&&ry<(midy+vx)&&ry>(midy-vx)){
+                    int color=u_BoxColor[i*20+j];
+                    for(int v=0;v<3;v++){
+                        if(v==color)
+                        {
+                            gl_FragColor=vec4(Exarr[v][0],Exarr[v][1],Exarr[v][2],1.0);       
+                        }
+                    }
+                  }
+                }
+                /*
+                if(rx>(0.5-vx)&&rx<(0.5+vx)&&ry<(0.5+vx)&&ry>(0.5-vx)){
+                    gl_FragColor=vec4(0.0,0.0,0.0,1.0);       
+                }
+                */  
+                 //gl_FragColor = u_FragColor;
+            }`; 
         const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE);
         //build base equilateral triangle
         //turtle.drawMaze(turtle.buildMaze(11,10));
@@ -58,6 +89,35 @@
                     array3d[i][j] = 0;
                 }
         }
+        let mid=9;
+        let OnePlayerNum=1;
+        for (let f = 1; f < 4; f += 1) {
+                array3d[f][mid]=OnePlayerNum;
+                for(let v=1;v<Math.floor((f+1)/2);v++)
+                {
+                    array3d[f][mid+v]=OnePlayerNum;
+                }
+                for(let t=1;t<Math.floor((f+2)/2);t++)
+                {
+                    array3d[f][mid-t]=OnePlayerNum;
+                }
+        }
+        let twoPlayerNum=2;
+        for (let f = 11; f < 15; f += 1) {
+                array3d[f][mid]=twoPlayerNum;
+                let f1=14-f;
+                for(let v=1;v<Math.floor((f1+1)/2);v++)
+                {
+                    array3d[f][mid+v]=twoPlayerNum;
+                }
+                for(let t=1;t<Math.floor((f1+2)/2);t++)
+                {
+                    array3d[f][mid-t]=twoPlayerNum;
+                }
+        }
+    
+        //array3d[7][9]=2;
+        console.log(array3d);
         turtle.drawCheckBoard(array3d);
         </script>
 </body>

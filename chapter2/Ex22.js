@@ -58,7 +58,7 @@ class TurtleGraph {
         this.y = y;
         this.theta = theta;
     }
-    forward(distance) {
+    forward(distance, rgb = null) {
         let xOffset = distance * Math.cos(this.theta);
         let yOffset = distance * Math.sin(this.theta);
         let nx = this.x + xOffset;
@@ -70,6 +70,16 @@ class TurtleGraph {
             this.data.push(x, y, nx, ny);
             gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.data), gl.STATIC_DRAW);
+            const u_FragColor = gl.getUniformLocation(gl.program, "u_FragColor");
+            gl.uniform4f(u_FragColor, 1.0, 0, 1, 1); // 绿色
+            let striteArray = [].concat.apply([],this.arr2d);
+            const u_width = gl.getUniformLocation(gl.program, 'u_Width');
+            const u_Height = gl.getUniformLocation(gl.program, 'u_Height');
+            gl.uniform1f(u_width, gl.drawingBufferWidth);
+            gl.uniform1f(u_Height, gl.drawingBufferHeight);
+            let location = gl.getUniformLocation(gl.program, "u_BoxColor");
+            gl.uniform1iv(location, striteArray);
+            //console.log(striteArray);
             gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(a_Position);
             gl.drawArrays(gl.LINES, 0, this.data.length / 2);
@@ -89,10 +99,11 @@ class TurtleGraph {
         if (array2d[0].length != 20) {
             throw Error('array2d[0].length!=15');
         }
+        this.arr2d = array2d;
         const gl = this.gl;
         let pointArr = [];
         let eageLen = 1.0 / 15;
-        let eageWidth= 1.0/ 20;
+        let eageWidth = 1.0 / 20;
         let pi = this.pi;
         let drawEage = () => {
             this.init(0, 0, this.pi / 2);
@@ -117,40 +128,61 @@ class TurtleGraph {
             this.forward(eageLen * 15);
 
             let mid = 6;
-            let drawCicyle=(x,y)=>{
-                let radius=0.03;
-                let k=5.7;
-                let rx=(y%2==1)?  eageLen*(k-x) : eageLen*(k-0.5-x);
-                let ry=(eageLen-0.01)*(19-y);
+            let drawCicyle = (x, y) => {
+                let radius = 0.03;
+                let k = 5.7;
+                let rx = (y % 2 == 1) ? eageLen * (k - x) : eageLen * (k - 0.5 - x);
+                let ry = (eageLen - 0.01) * (19 - y);
 
-                const swp=20;
-                const OutSideTheta=2*pi/swp;
-                const Len=Math.sin(OutSideTheta/2)*radius;
-                this.pen=false;
-                this.init(rx,ry,0);
+                const swp = 20;
+                const OutSideTheta = 2 * pi / swp;
+                const Len = Math.sin(OutSideTheta / 2) * radius;
+                this.pen = false;
+                this.init(rx, ry, 0);
                 this.forward(radius);
-                this.pen=true;
-                this.left(pi/2);
-                for(let i=0;i<swp;i++){
+                this.pen = true;
+                this.left(pi / 2);
+                for (let i = 0; i < swp; i++) {
                     this.forward(Len);
                     this.left(OutSideTheta);
                 }
             }
-            for (let i = 1; i < 14; i+=1) {
-                drawCicyle(mid,i+10);
-                for (let j = 1;j < Math.floor((i+1)/2); j+=1) {
+            for (let i = 1; i < 14; i += 1) {
+                drawCicyle(mid, i + 10);
+                for (let j = 1; j < Math.floor((i + 1) / 2); j += 1) {
                     //drawCicyle(mid-j,i+10);
-                   drawCicyle(mid+j,i+10);
+                    drawCicyle(mid + j, i + 10);
                 }
-                for(let k=1;k<Math.floor((i+2)/2);k+=1){
-                    drawCicyle(mid-k,i+10);
+                for (let k = 1; k < Math.floor((i + 2) / 2); k += 1) {
+                    drawCicyle(mid - k, i + 10);
                 }
+            }//build up-tri
+            for (let i = 1; i < 14; i++) {
+                let ni = 18 - i;
+                if (ni > 13) {
+                    drawCicyle(mid, ni + 10);
+                }
+                for (let j = 1; j < Math.floor((i + 1) / 2); j += 1) {
+                    //drawCicyle(mid-j,i+10);
+                    if (ni > 13 || (ni < 9 && j >= Math.floor(ni) / 2)) {
+                        drawCicyle(mid + j, ni + 10);
+                    }
+                }
+                for (let k = 1; k < Math.floor((i + 2) / 2); k += 1) {
+                    if (ni > 13 || (ni < 9 && k >= Math.floor(ni + 1) / 2)) {
+                        {
+                            drawCicyle(mid - k, ni + 10);
+
+                        }
+                    }
+                }//build up-three small tris
             }
         };
 
         drawEage();
     }
     isDraw = false;
+
     pen(up_down) {
         this.isDraw = up_down;
     }
@@ -168,7 +200,7 @@ class TurtleGraph {
         }
         this.theta = ntheta;
     }
-    gl; x; y; theta;
+    gl; x; y; theta; arr2d;
     pi = Math.PI;
     data = [];
 }
