@@ -64,15 +64,11 @@
                     for(int v=0;v<4;v++){
                         if(v==color)
                         {
-                            gl_FragColor=vec4(Exarr[v][0],Exarr[v][1],Exarr[v][2],1.0);       
+                            gl_FragColor=Exarr[v]; 
+                            break;      
                         }
                     }
                   } 
-                  /*
-                  else{
-                            gl_FragColor=Exarr[0];
-                  }
-                  */
                 }
                 //float leftx=0.5+9.0*vx*2.0;
                 float lefty=0.5-7.0*vx*2.0;
@@ -130,7 +126,7 @@
                 }
         }
     
-        array3d[9][7]=2;
+        array3d[9][7]=1;
         console.log(array3d);
         turtle.drawCheckBoard(array3d);
         </script>
