@@ -38,13 +38,11 @@ class TurtleGraph {
                 return [nx, ny];
             };
             //player 1  player 2
-            const playerStep = (nx,ny,playerNum) => {
+            const playerStep = (nx,ny) => {
                 //2 2win 1 win 0 contiue
+                const playerNum=(this.playerOne)? 1 : 2;
                 let array3d=this.arr2d;
-                if(array3d[nx][ny]!==playerNum){
-                    return 0;
-                }
-                const checkWin = () => {
+                let checkWin = () => {
                     let play2Win = true, play1Win = true;
                     let OnePlayerNum = 1;
                     let twoPlayerNum = 2;
@@ -88,6 +86,36 @@ class TurtleGraph {
                     }
                     return 0;
                 };
+                //run
+                if(array3d[nx][ny]===3){
+                    array3d[nx][ny]=playerNum;
+                    //clear red
+                    for(let i=0;i<20;i++)
+                     for(let j=0;j<15;j++)
+                    {
+                        if(array3d[i][j]===3)
+                            array3d[i][j]=0;
+                    }
+                    array3d[this.lastSelx][this.lastSely]=0;
+                    this.playerOne=!this.playerOne;
+                    this.drawCheckBoard(array3d);
+                    return checkWin();
+                }
+                //cancel select
+                if(nx==this.lastSelx&&ny==this.lastSely){
+                    for(let i=0;i<20;i++)
+                     for(let j=0;j<15;j++)
+                    {
+                        if(array3d[i][j]===3)
+                            array3d[i][j]=0;
+                    }
+                    this.drawCheckBoard(array3d);
+                    return 0;
+                }
+                if(array3d[nx][ny]!==playerNum){
+                    return 0;
+                }
+                this.lastSelx=nx;this.lastSely=ny;
                 //start perpare to run
                 const pr=(nx%2==1)?[[-1,0],[1,0],[0,1],[0,-1],[-1,-1],[1,-1]]:
                                    [[-1,0],[1,0],[0,1],[0,-1],[-1,1],[1,1]];
@@ -107,7 +135,7 @@ class TurtleGraph {
             const y = (this.canvas.height / 2 - (my - rect.top)) / (this.canvas.height / 2);
             //console.log("canvas x=" + x + ", y=" + y);
             const [nx, ny] = findGrid(x, y);
-            playerStep(nx,ny,1);
+            playerStep(nx,ny);
         };
         const thet = this;
         this.drawCheckBoard = (array2d) => {
@@ -314,7 +342,8 @@ class TurtleGraph {
         }
         this.theta = ntheta;
     }
-    gl; x; y; theta; arr2d; canvas;
+    gl; x; y; theta; arr2d; canvas;playerOne=true;
+    lastSelx;lastSely;
     pi = Math.PI;
     data = [];
 }
