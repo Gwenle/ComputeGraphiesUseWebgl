@@ -45,30 +45,44 @@
             void main() {
             //'  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);
             //'  gl_FragColor = vec4(1.0,0.0,1.0,1.0);
-                 vec4 Exarr[3];
+                 vec4 Exarr[4];
                  Exarr[0]=vec4(1.0,0.0,1.0,1.0);
                  Exarr[1]=vec4(1.0,1.0,0.0,1.0);
                  Exarr[2]=vec4(0.0,0.0,1.0,1.0);
-                 float rx=(gl_FragCoord.x)/u_Width;
-                 float ry=(gl_FragCoord.y)/u_Height;
-                 float vx=0.02;
-                 for(int i=0;i<15;i++)
-                    for(int j=0;j<20;j++)
+                 Exarr[3]=vec4(1.0,0.0,0.0,1.0);
+                 float ry=(gl_FragCoord.x)/u_Width;
+                 float rx=(gl_FragCoord.y)/u_Height;
+                 float vx=0.0155;
+                 for(int i=0;i<20;i++)
+                    for(int j=0;j<15;j++)
                 {
-                    float midy=0.5+float(7-i)*vx*2.0;
-                    float midx=(mod(float(i),2.0)>=1.0)? 0.5+float(j-9)*vx*2.0 : 0.5+(float(j-9)+0.5)*vx*2.0;
+                    float midx=0.5+float(9-i)*vx*2.0;
+                    float midy=(mod(float(i),2.0)>=1.0)? 0.5+float(j-7)*vx*2.0 : 0.5+(float(j-7)+0.5)*vx*2.0;
+                   // if(rx<())
                     if(rx>(midx-vx)&&rx<(midx+vx)&&ry<(midy+vx)&&ry>(midy-vx)){
-                    int color=u_BoxColor[i*20+j];
-                    for(int v=0;v<3;v++){
+                    int color=u_BoxColor[i*15+j];
+                    for(int v=0;v<4;v++){
                         if(v==color)
                         {
                             gl_FragColor=vec4(Exarr[v][0],Exarr[v][1],Exarr[v][2],1.0);       
                         }
                     }
+                  } 
+                  /*
+                  else{
+                            gl_FragColor=Exarr[0];
                   }
+                  */
+                }
+                //float leftx=0.5+9.0*vx*2.0;
+                float lefty=0.5-7.0*vx*2.0;
+                float righty=0.5+7.0*vx*2.0;
+                if((ry<lefty)||(ry>righty))
+                {
+                    gl_FragColor=Exarr[0];       
                 }
                 /*
-                if(rx>(0.5-vx)&&rx<(0.5+vx)&&ry<(0.5+vx)&&ry>(0.5-vx)){
+                if(rx>(0.5-)&&rx<(0.5+vx)&&ry<(0.5+vx)&&ry>(0.5-vx)){
                     gl_FragColor=vec4(0.0,0.0,0.0,1.0);       
                 }
                 */  
@@ -77,8 +91,8 @@
         const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE);
         //build base equilateral triangle
         //turtle.drawMaze(turtle.buildMaze(11,10));
-        var rows = 15,
-            cols = 20,
+        var rows = 20,
+            cols = 15,
             array3d = new Array(rows),
             i, j, k;
 
@@ -89,9 +103,9 @@
                     array3d[i][j] = 0;
                 }
         }
-        let mid=9;
+        let mid=7;
         let OnePlayerNum=1;
-        for (let f = 1; f < 4; f += 1) {
+        for (let f = 1; f < 5; f += 1) {
                 array3d[f][mid]=OnePlayerNum;
                 for(let v=1;v<Math.floor((f+1)/2);v++)
                 {
@@ -103,9 +117,9 @@
                 }
         }
         let twoPlayerNum=2;
-        for (let f = 11; f < 15; f += 1) {
+        for (let f = 14; f < 18; f += 1) {
                 array3d[f][mid]=twoPlayerNum;
-                let f1=14-f;
+                let f1=18-f;
                 for(let v=1;v<Math.floor((f1+1)/2);v++)
                 {
                     array3d[f][mid+v]=twoPlayerNum;
@@ -116,7 +130,7 @@
                 }
         }
     
-        //array3d[7][9]=2;
+        array3d[9][7]=2;
         console.log(array3d);
         turtle.drawCheckBoard(array3d);
         </script>
