@@ -1,5 +1,5 @@
 class TurtleGraph {
-    constructor(CanvasId, VSHADER_SOURCE, FSHADER_SOURCE) {
+    constructor(CanvasId, VSHADER_SOURCE, FSHADER_SOURCE, TurnText) {
         const canvasN = document.getElementById(CanvasId);
         this.canvas = canvasN;
         this.clickCallback = (event) => {
@@ -38,10 +38,10 @@ class TurtleGraph {
                 return [nx, ny];
             };
             //player 1  player 2
-            const playerStep = (nx,ny) => {
+            const playerStep = (nx, ny) => {
                 //2 2win 1 win 0 contiue
-                const playerNum=(this.playerOne)? 1 : 2;
-                let array3d=this.arr2d;
+                const playerNum = (this.playerOne) ? 1 : 2;
+                let array3d = this.arr2d;
                 let checkWin = () => {
                     let play2Win = true, play1Win = true;
                     let OnePlayerNum = 1;
@@ -61,72 +61,100 @@ class TurtleGraph {
                         }
                     }
                     if (play2Win) {
-                        console.log("player2Win!!");
+                        alert("player2Win!!");
                         return 2;
                     }
                     for (let f = 14; f < 18; f += 1) {
                         let f1 = 18 - f;
                         for (let v = 0; v < Math.floor((f1 + 1) / 2); v++) {
-                            if(array3d[f][mid + v] !== OnePlayerNum){
-                                play1Win=false;
+                            if (array3d[f][mid + v] !== OnePlayerNum) {
+                                play1Win = false;
                                 break;
                             }
                         }
                         for (let t = 1; t < Math.floor((f1 + 2) / 2); t++) {
-                            if(array3d[f][mid - t] !== OnePlayerNum){
-                                play1Win=false;
+                            if (array3d[f][mid - t] !== OnePlayerNum) {
+                                play1Win = false;
                                 break;
                             }
-                            
+
                         }
                     }
                     if (play1Win) {
-                        console.log("player1Win!");
+                        alert("player1Win!");
                         return 1;
                     }
                     return 0;
                 };
                 //run
-                if(array3d[nx][ny]===3){
-                    array3d[nx][ny]=playerNum;
+                if (array3d[nx][ny] === 3) {
+                    array3d[nx][ny] = playerNum;
                     //clear red
-                    for(let i=0;i<20;i++)
-                     for(let j=0;j<15;j++)
-                    {
-                        if(array3d[i][j]===3)
-                            array3d[i][j]=0;
-                    }
-                    array3d[this.lastSelx][this.lastSely]=0;
-                    this.playerOne=!this.playerOne;
+                    for (let i = 0; i < 20; i++)
+                        for (let j = 0; j < 15; j++) {
+                            if (array3d[i][j] === 3)
+                                array3d[i][j] = 0;
+                        }
+                    array3d[this.lastSelx][this.lastSely] = 0;
+                    this.playerOne = !this.playerOne;
+                    TurnText.textContent = (!this.playerOne) ? 'Blue' : 'Green';
                     this.drawCheckBoard(array3d);
                     return checkWin();
                 }
                 //cancel select
-                if(nx==this.lastSelx&&ny==this.lastSely){
-                    for(let i=0;i<20;i++)
-                     for(let j=0;j<15;j++)
-                    {
-                        if(array3d[i][j]===3)
-                            array3d[i][j]=0;
-                    }
+                if (nx == this.lastSelx && ny == this.lastSely) {
+                    for (let i = 0; i < 20; i++)
+                        for (let j = 0; j < 15; j++) {
+                            if (array3d[i][j] === 3)
+                                array3d[i][j] = 0;
+                        }
+                    [this.lastSelx, this.lastSely] = [-1, -1];
                     this.drawCheckBoard(array3d);
                     return 0;
                 }
-                if(array3d[nx][ny]!==playerNum){
+                if (array3d[nx][ny] !== playerNum) {
                     return 0;
                 }
-                this.lastSelx=nx;this.lastSely=ny;
+                this.lastSelx = nx; this.lastSely = ny;
                 //start perpare to run
-                const pr=(nx%2==1)?[[-1,0],[1,0],[0,1],[0,-1],[-1,-1],[1,-1]]:
-                                   [[-1,0],[1,0],[0,1],[0,-1],[-1,1],[1,1]];
-                for(let i=0;i<6;i++)
-                {
-                    const mx=pr[i][0]+nx;
-                    const my=pr[i][1]+ny;
-                    if(ifInGrid(mx,my)&&array3d[mx][my]===0)
-                    {
-                        array3d[mx][my]=3;
+                const gapJump = (x, y) => {
+                    console.log(x, y);
+                    if (!ifInGrid(x, y) || array3d[x][y] !== 0) {
+                        return;
                     }
+                    array3d[x][y] = 3;
+                    const pr = (nx % 2 == 1) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
+                        [[-1, -1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                    const pt = (nx % 2 == 0) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
+                        [[-1, -1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                    for (let i = 0; i < 6; i++) {
+                        const mx = pr[i][0] + x;
+                        const my = pr[i][1] + y;
+                        if (ifInGrid(mx, my) && array3d[mx][my] !== 0 && array3d[x][y] === 3) {
+                            const fx = pt[i][0] + mx;
+                            const fy = pt[i][1] + my;
+                            gapJump(fx, fy);
+                        }
+                    }
+                };
+                //this array means 1 to 6 the mirror of ar
+                const pr = (nx % 2 == 1) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
+                    [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                const pt = (nx % 2 == 0) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
+                    [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                for (let i = 0; i < 6; i++) {
+                    const mx = pr[i][0] + nx;
+                    const my = pr[i][1] + ny;
+                    if (ifInGrid(mx, my)) {
+                        if (array3d[mx][my] === 0) {
+                            array3d[mx][my] = 3;
+                        } else if (array3d[mx][my] !== 3) {
+                            const fx = pt[i][0] + mx;
+                            const fy = pt[i][1] + my;
+                            gapJump(fx, fy);
+                        }
+                    }
+
                 }
                 this.drawCheckBoard(array3d);
             };
@@ -135,7 +163,7 @@ class TurtleGraph {
             const y = (this.canvas.height / 2 - (my - rect.top)) / (this.canvas.height / 2);
             //console.log("canvas x=" + x + ", y=" + y);
             const [nx, ny] = findGrid(x, y);
-            playerStep(nx,ny);
+            playerStep(nx, ny);
         };
         const thet = this;
         this.drawCheckBoard = (array2d) => {
@@ -342,8 +370,8 @@ class TurtleGraph {
         }
         this.theta = ntheta;
     }
-    gl; x; y; theta; arr2d; canvas;playerOne=true;
-    lastSelx;lastSely;
+    gl; x; y; theta; arr2d; canvas; playerOne = true;
+    lastSelx; lastSely;
     pi = Math.PI;
     data = [];
 }

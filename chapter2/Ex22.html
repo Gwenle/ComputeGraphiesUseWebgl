@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Patience Chess</title>
     <style>
         #canvas {
             height: 400px;
@@ -16,6 +16,9 @@
 
 <body>
     <canvas id="canvas"></canvas>
+    <div>
+    <h2>Turn to:</h2><h2 id="TurnPlayer">Green</h2>
+    </div>
     <script src="./Ex22.js" ></script>
     <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
     <script>
@@ -36,7 +39,9 @@
                gl_PointSize = 10.0;
             }\n`
         const FSHADER_SOURCE=
-           `precision mediump float;
+           `precision lowp float;
+           precision lowp int;
+            // precision mediump float;
             const int Num_Box=310;
             uniform vec4 u_FragColor;
             uniform int u_BoxColor[310];
@@ -47,7 +52,7 @@
             //'  gl_FragColor = vec4(1.0,0.0,1.0,1.0);
                  vec4 Exarr[4];
                  Exarr[0]=vec4(1.0,0.0,1.0,1.0);
-                 Exarr[1]=vec4(1.0,1.0,0.0,1.0);
+                 Exarr[1]=vec4(0.0,1.0,0.0,1.0);
                  Exarr[2]=vec4(0.0,0.0,1.0,1.0);
                  Exarr[3]=vec4(1.0,0.0,0.0,1.0);
                  float ry=(gl_FragCoord.x)/u_Width;
@@ -65,7 +70,7 @@
                         if(v==color)
                         {
                             gl_FragColor=Exarr[v]; 
-                            break;      
+                            return;
                         }
                     }
                   } 
@@ -84,7 +89,7 @@
                 */  
                  //gl_FragColor = u_FragColor;
             }`; 
-        const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE);
+        const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE,document.getElementById("TurnPlayer"));
         //build base equilateral triangle
         //turtle.drawMaze(turtle.buildMaze(11,10));
         var rows = 20,
