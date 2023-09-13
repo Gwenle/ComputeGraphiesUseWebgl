@@ -156,7 +156,12 @@ class TurtleGraph {
                     }
 
                 }
-                this.drawCheckBoard(array3d);
+                //this.drawCheckBoard(array3d);
+                const striteArray = [].concat.apply([], this.arr2d);
+                const location = gl.getUniformLocation(gl.program, "u_BoxColor");
+                gl.uniform1iv(location, striteArray);
+                gl.drawArrays(gl.LINES,0,this.data.length/2);
+
             };
             const rect = event.target.getBoundingClientRect();
             const x = ((mx - rect.left) - this.canvas.width / 2) / (this.canvas.width);
@@ -330,11 +335,11 @@ class TurtleGraph {
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.data), gl.STATIC_DRAW);
             const u_FragColor = gl.getUniformLocation(gl.program, "u_FragColor");
             gl.uniform4f(u_FragColor, 1.0, 0, 1, 1); // 绿色
-            const striteArray = [].concat.apply([], this.arr2d);
             const u_width = gl.getUniformLocation(gl.program, 'u_Width');
             const u_Height = gl.getUniformLocation(gl.program, 'u_Height');
             gl.uniform1f(u_width, gl.drawingBufferWidth);
             gl.uniform1f(u_Height, gl.drawingBufferHeight);
+            const striteArray = [].concat.apply([], this.arr2d);
             const location = gl.getUniformLocation(gl.program, "u_BoxColor");
             gl.uniform1iv(location, striteArray);
             //console.log(striteArray);
