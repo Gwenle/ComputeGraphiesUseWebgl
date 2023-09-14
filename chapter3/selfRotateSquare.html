@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        #canvas {
+            height: 400px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script  src="../utils/MV.js" ></script>
+    <script  src="./selfRotateSquare.js"></script>
+    <script >
+            const VSHADER_SOURCE =
+                `attribute vec4 vPosition;
+                    uniform float theta;
+                void main(){
+    gl_Position.x=vPosition.x*(-sin(theta))+cos(theta)*vPosition.y;
+    gl_Position.y=vPosition.y*(sin(theta))+cos(theta)*vPosition.x;
+    gl_Position.z=0.0;
+    gl_Position.w=1.0;
+}`
+            const FSHADER_SOURCE =
+                'precision mediump float;\n' +
+                'void main() {\n' +
+                //'  gl_FragColor = vec4(gl_FragCoord.x/u_Width, gl_FragCoord.z, gl_FragCoord.y/u_Height, 1.0);\n' +
+                '  gl_FragColor = vec4(1.0,0.0,0.0,1.0);\n' +
+                '}\n';
+            let aSquare = new selfRotateSquare(document.getElementById("canvas"), VSHADER_SOURCE, FSHADER_SOURCE);
+        </script>
+</body>
+
+</html>
