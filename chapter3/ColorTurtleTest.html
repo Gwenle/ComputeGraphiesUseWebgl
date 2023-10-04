@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            height: 400px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script src="./ColorTurtle.js"></script>
+    <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
+    <script>
+        const VSHADER_SOURCE =
+            //'uniform mat4 u_ViewMatrix;\n'+
+            `attribute vec4 a_Position;\n
+             attribute vec4 g_color;
+             varying vec4 a_color;
+             void main() {\n
+               gl_Position = a_Position;\n
+               gl_PointSize = 10.0;
+               a_color=g_color;
+            }\n`
+        const FSHADER_SOURCE=
+            `precision mediump float;
+            varying vec4 a_color;
+            void main() {
+              gl_FragColor = a_color;
+            }`
+        const turtle=new TurtleGraph('canvas',VSHADER_SOURCE,FSHADER_SOURCE);
+        //build base equilateral triangle
+        turtle.init(-1.0,-1.0,turtle.pi/3);
+        turtle.pen(true);
+        turtle.forward(2);
+        turtle.right(turtle.pi*2/3);
+        turtle.forward(2);
+        turtle.right(turtle.pi*2/3);
+        turtle.forward(2);
+
+        let subdivison=(n,x1,y1,x2,y2,x3,y3,cr,cg,cb)=>{
+            if(n===0){
+                return ;
+            }
+            turtle.set_color(cr,cg,cb,1.0);
+            let x12=(x1+x2)/2;
+            let y12=(y1+y2)/2;
+            let x23=(x2+x3)/2;
+            let y23=(y2+y3)/2;
+            let x13=(x1+x3)/2;
+            let y13=(y1+y3)/2;
+            let distance=Math.sqrt((x12-x23)*(x12-x23)+(y12-y23)*(y12-y23));
+            console.log(distance);
+            turtle.init(x12,y12,0);
+            turtle.forward(distance);
+            turtle.right(turtle.pi*2/3);
+            turtle.forward(distance);
+            turtle.right(turtle.pi*2/3);
+            turtle.forward(distance);
+            const newcolor=[cr-0.1,cg+0.1,cb+0.1];
+            subdivison(n-1,x1,y1,x12,y12,x13,y13,...newcolor);
+            subdivison(n-1,x12,y12,x2,y2,x23,y23,...newcolor);
+            subdivison(n-1,x13,y13,x23,y23,x3,y3,...newcolor);
+        };
+
+        subdivison(6,-1.0,-1.0,0,Math.sqrt(3)-1,1.0,-1.0,1.0,0.2,0.0);
+    </script>
+</body>
+
+</html>
