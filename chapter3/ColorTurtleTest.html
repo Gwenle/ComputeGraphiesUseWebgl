@@ -16,9 +16,9 @@
 
 <body>
     <canvas id="canvas"></canvas>
-    <script src="./ColorTurtle.js"></script>
     <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
-    <script>
+    <script type="module">
+        import {TurtleGraph} from "./ColorTurtle.js";
         const VSHADER_SOURCE =
             //'uniform mat4 u_ViewMatrix;\n'+
             `attribute vec4 a_Position;\n

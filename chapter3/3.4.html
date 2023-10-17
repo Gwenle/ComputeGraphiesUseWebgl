@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            height: 400px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div>
+        <h2>Turn to:</h2><h2 id="TurnPlayer">Green</h2>
+        </div>
+    <!-- script type="module" src="https://unpkg.com/three/build/three.module.js" ></script-->
+    <script type="module">
+        import {JumpChess} from "./3.4.js";
+        const VSHADER_SOURCE =
+            //'uniform mat4 u_ViewMatrix;\n'+
+            `attribute vec4 a_Position;\n
+             attribute vec4 g_color;
+             varying vec4 a_color;
+             void main() {\n
+               gl_Position = a_Position;\n
+               gl_PointSize = 10.0;
+               a_color=g_color;
+            }\n`
+        const FSHADER_SOURCE=
+            `precision mediump float;
+            varying vec4 a_color;
+            void main() {
+              gl_FragColor = a_color;
+            }`
+        let JumpCHess=new JumpChess(VSHADER_SOURCE,FSHADER_SOURCE,"canvas");
+    </script>
+</body>
+
+</html>
