@@ -162,7 +162,19 @@ class JumpChess {
                     return checkWin();
                 }
                 //cancel select
-                if (nx == this.lastSelx && ny == this.lastSely) {
+                const otherChaseWhileredExt=(nowx,nowy)=>{
+                    let rel=false;
+                    for (let i = 0; i < 20; i++)
+                        for (let j = 0; j < 15; j++) {
+                            if (array3d[i][j] === 3)
+                                rel=true;
+                        }
+                    if(rel&&(array3d[nowx][nowy]===2||array3d[nowx][nowy]===1)){
+                        rel=true;
+                    }
+                    return rel;
+                }
+                if (nx == this.lastSelx && ny == this.lastSely || otherChaseWhileredExt(nx,ny)) {
                     for (let i = 0; i < 20; i++)
                         for (let j = 0; j < 15; j++) {
                             if (array3d[i][j] === 3)
@@ -184,9 +196,9 @@ class JumpChess {
                     }
                     array3d[x][y] = 3;
                     const pr = (nx % 2 == 1) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
-                        [[-1, -1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                        [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
                     const pt = (nx % 2 == 0) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
-                        [[-1, -1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                        [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
                     for (let i = 0; i < 6; i++) {
                         const mx = pr[i][0] + x;
                         const my = pr[i][1] + y;
