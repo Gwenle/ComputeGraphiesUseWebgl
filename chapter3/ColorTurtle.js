@@ -65,21 +65,23 @@ class TurtleGraph{
         let nx=this.x+xOffset;
         let ny=this.y+yOffset;
         let drawLine=(x,y,nx,ny,gl)=>{
-            this.gl.clear(gl.COLOR_BUFFER_BIT);
-            const buffer = gl.createBuffer();
-            const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-            const g_color=gl.getAttribLocation(gl.program,'g_color');
             this.data.push(x,y,...this.color,nx,ny,...this.color);
-            const dataF32=new Float32Array(this.data);
-            const Fsize=dataF32.BYTES_PER_ELEMENT;
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, dataF32, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 6*Fsize, 0);
-            gl.enableVertexAttribArray(a_Position);
+            if(this.onceDraw){
+                this.gl.clear(gl.COLOR_BUFFER_BIT);
+                const buffer = gl.createBuffer();
+                const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+                const g_color=gl.getAttribLocation(gl.program,'g_color');
+                const dataF32=new Float32Array(this.data);
+                const Fsize=dataF32.BYTES_PER_ELEMENT;
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ARRAY_BUFFER, dataF32, gl.STATIC_DRAW);
+                gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 6*Fsize, 0);
+                gl.enableVertexAttribArray(a_Position);
 
-            gl.vertexAttribPointer(g_color,3,gl.FLOAT,false,6*Fsize,2*Fsize);
-            gl.enableVertexAttribArray(g_color);
-            gl.drawArrays(gl.LINES,0,this.data.length/6);
+                gl.vertexAttribPointer(g_color,3,gl.FLOAT,false,6*Fsize,2*Fsize);
+                gl.enableVertexAttribArray(g_color);
+                gl.drawArrays(gl.LINES,0,this.data.length/6);
+            }
         };
         if(this.isDraw){
             drawLine(this.x,this.y,nx,ny,this.gl);
@@ -89,6 +91,7 @@ class TurtleGraph{
         //console.log(this.data);
     }
     isDraw=false;
+    onceDraw=false;
     set_color(r,g,b,a){
         this.color=[r,g,b,a];
     }

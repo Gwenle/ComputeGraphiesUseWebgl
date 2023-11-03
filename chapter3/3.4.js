@@ -1,25 +1,28 @@
 import { TurtleGraph } from "./ColorTurtle.js";
 class JumpChess {
-    constructor(VSHADER_SOURCE, FSHADER_SOURCE, CanvasId,TurnText) {
+    constructor(VSHADER_SOURCE, FSHADER_SOURCE, CanvasId, TurnText) {
         this.TurtleGraphN = new TurtleGraph(CanvasId, VSHADER_SOURCE, FSHADER_SOURCE);
         this.initColorArray();
-        const mid=7;    
+        const mid = 7;
         let that = this;
         const canvasN = document.getElementById(CanvasId);
-        this.canvas=canvasN;
-        this.gl=canvasN.getContext("webgl");
-        let gl=this.gl;
+        this.canvas = canvasN;
+        this.gl = canvasN.getContext("webgl");
+        let gl = this.gl;
+        const movesingle = [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]];
+        const movedouble = [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
         let draw = () => {
             //clear
             gl.clearColor(1.0, 1.0, 1.0, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
+            this.TurtleGraphN.onceDraw=false;
 
             const eageLen = 1.0 / 15;
             let TurtleGraph1 = this.TurtleGraphN;
             let pi = this.pi;
             let initPage = () => {
                 TurtleGraph1.init(0, 0, this.pi / 2);
-                TurtleGraph1.set_color(1.0,0.0,0.0,1.0);
+                TurtleGraph1.set_color(1.0, 0.0, 0.0, 1.0);
                 TurtleGraph1.forward(eageLen * 15 / 3 * Math.sqrt(3));
                 TurtleGraph1.pen(true);
                 TurtleGraph1.right(5 * pi / 6);
@@ -66,6 +69,9 @@ class JumpChess {
                 for (let i = 0; i < this.rows; i++) {
                     for (let j = 0; j < this.cols; j++) {
                         if (this.ColorBufferArray[i][j] > -1) {
+                            if(i===this.rows-3){
+                                TurtleGraph1.onceDraw=true;
+                            }
                             drawCicyle(j, i, this.UseColorsArray[this.ColorBufferArray[i][j]]);
                         }
                     }
@@ -82,7 +88,7 @@ class JumpChess {
 
             //
             const ifInGrid = (x, y) => {
-                return this.ColorBufferArray[x][y]!=-1;
+                return this.ColorBufferArray[x][y] != -1;
             }
             const findGrid = (x, y) => {
                 // x=x*2;
@@ -162,19 +168,19 @@ class JumpChess {
                     return checkWin();
                 }
                 //cancel select
-                const otherChaseWhileredExt=(nowx,nowy)=>{
-                    let rel=false;
+                const otherChaseWhileredExt = (nowx, nowy) => {
+                    let rel = false;
                     for (let i = 0; i < 20; i++)
                         for (let j = 0; j < 15; j++) {
                             if (array3d[i][j] === 3)
-                                rel=true;
+                                rel = true;
                         }
-                    if(rel&&(array3d[nowx][nowy]===2||array3d[nowx][nowy]===1)){
-                        rel=true;
+                    if (rel && (array3d[nowx][nowy] === 2 || array3d[nowx][nowy] === 1)) {
+                        rel = true;
                     }
                     return rel;
                 }
-                if (nx == this.lastSelx && ny == this.lastSely || otherChaseWhileredExt(nx,ny)) {
+                if (nx == this.lastSelx && ny == this.lastSely || otherChaseWhileredExt(nx, ny)) {
                     for (let i = 0; i < 20; i++)
                         for (let j = 0; j < 15; j++) {
                             if (array3d[i][j] === 3)
@@ -195,10 +201,10 @@ class JumpChess {
                         return;
                     }
                     array3d[x][y] = 3;
-                    const pr = (nx % 2 == 1) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
-                        [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
-                    const pt = (nx % 2 == 0) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
-                        [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                    const pr = (nx % 2 == 1) ? movesingle :
+                        movedouble;
+                    const pt = (nx % 2 == 0) ? movesingle :
+                        movedouble;
                     for (let i = 0; i < 6; i++) {
                         const mx = pr[i][0] + x;
                         const my = pr[i][1] + y;
@@ -210,10 +216,10 @@ class JumpChess {
                     }
                 };
                 //this array means 1 to 6 the mirror of ar
-                const pr = (nx % 2 == 1) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
-                    [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
-                const pt = (nx % 2 == 0) ? [[-1, 0], [1, -1], [0, 1], [0, -1], [-1, -1], [1, 0]] :
-                    [[-1, 1], [1, 0], [0, 1], [0, -1], [-1, 0], [1, 1]];
+                const pr = (nx % 2 == 1) ? movesingle :
+                    movedouble;
+                const pt = (nx % 2 == 0) ? movesingle :
+                    movedouble;
                 for (let i = 0; i < 6; i++) {
                     const mx = pr[i][0] + nx;
                     const my = pr[i][1] + ny;
@@ -239,7 +245,7 @@ class JumpChess {
             const [nx, ny] = findGrid(x, y);
             playerStep(nx, ny);
         };
-        canvasN.addEventListener("click",clickCallback);
+        canvasN.addEventListener("click", clickCallback);
 
         draw();
     }
@@ -256,18 +262,16 @@ class JumpChess {
                 this.ColorBufferArray[i][j] = -1;
             }
         }
-        let st=1,ed=cols-1;
-        for(let i=5;i<14;i++){
-            if(i>9)
-            {
-            if(i%2==0){st-=1;}else{ed+=1};
+        let st = 1, ed = cols - 1;
+        for (let i = 5; i < 14; i++) {
+            if (i > 9) {
+                if (i % 2 == 0) { st -= 1; } else { ed += 1 };
             }
-            for(let j=st;j<ed;j++)
-            {
+            for (let j = st; j < ed; j++) {
                 this.ColorBufferArray[i][j] = 0;
             }
-            if(i<=8){
-            if(i%2==0){st+=1;}else{ed-=1};
+            if (i <= 8) {
+                if (i % 2 == 0) { st += 1; } else { ed -= 1 };
             }
         }
         let mid = 7;
