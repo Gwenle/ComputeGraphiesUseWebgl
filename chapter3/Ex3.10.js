@@ -1,7 +1,7 @@
 class TurtleGraph {
     constructor(CanvasId, VSHADER_SOURCE, FSHADER_SOURCE) {
         this.ratX=0;
-        this.ratY=0;
+        this.ratY=9;
         let canvasN=document.getElementById(CanvasId);
         console.log("!"+canvasN);
         this.gl=canvasN.getContext("webgl");
@@ -51,6 +51,52 @@ class TurtleGraph {
             gl.useProgram(program);
         }
         ceateProgram(VSHADER_SOURCE, FSHADER_SOURCE);
+
+        let clickCallback = (event) => {
+
+                if (event.button == 0) {
+                    this.mouseOrient=(this.mouseOrient+3)%4;
+                    this.drawMaze(this.array3d);
+            
+                }else if (event.button == 2){
+                    this.mouseOrient=(this.mouseOrient+5)%4;
+                    this.drawMaze(this.array3d);
+                }else if(event.button == 1){
+                //console.log("鼠标滚轮!");
+                    let [ratX,ratY]=[this.ratX,this.ratY];
+                    const orient=this.mouseOrient;
+                    // console.log(orient);
+                    // console.log(ratX,ratY);
+                    // console.log(this.array3d[ratX][ratY]);
+                    switch (orient){
+                        case 0://right //5 up0 left1  down2 right3 stauts
+                            if(this.array3d[ratX][ratY][2]!=0){
+                                this.ratX+=1;
+                            }
+                            break;
+                        case 3://down
+                            if(this.array3d[ratX][ratY][1]!=0){
+                                this.ratY-=1;
+                            }
+                            break;
+                        case 2://left
+                            if(this.array3d[ratX][ratY][0]!=0){
+                                this.ratX-=1;
+                            }
+                            break;
+                        case 1://up
+                            if(this.array3d[ratX][ratY][3]!=0){
+                                this.ratY+=1;
+                            }
+                            break;
+                    }
+                    
+                    this.drawMaze(this.array3d);
+                }
+            
+        }
+
+        canvasN.addEventListener("mousedown", clickCallback);
     }
     init(x, y, theta) {
         if (theta > 2 * this.pi) {
@@ -94,13 +140,14 @@ class TurtleGraph {
         let boxLength=1.0/n;
         let boxWidth=1.0/m;
         let pointBox=[];
+        this.data=[];
         let darwRat=(x,y)=>{
-            const eageLen=boxWidth*3;
+            const eageLen=boxWidth;
                 const pi=Math.PI;
                 const radius = 0.04;
-                const k = -1.55;
-                const rx =  (eageLen+0.01) * (k + x);
-                const ry = (eageLen-0.01) * (-k-y);
+                const k = -4.65;
+                const rx =  (eageLen) * (k + x);
+                const ry = (eageLen) * (k+y);
             const drawCicyle = (x, y) => {
                 
                 //const rx=0;
@@ -120,7 +167,7 @@ class TurtleGraph {
                     this.forward(Len);
                     this.left(OutSideTheta);
                 }   
-                console.log(this.data);
+                //console.log(this.data);
                 this.pen(false);
             }
             drawCicyle(x,y);
@@ -149,6 +196,8 @@ class TurtleGraph {
         }
         darwRat(this.ratX,this.ratY);
         for(let i=0;i<n;i++)
+        //for(let i=0;i<3;i++)
+            //for(let j=0;j<4;j++){
             for(let j=0;j<m;j++){
                     if(array3d[i][j][0]===0){
                         pointBox.push(-0.5+i*boxLength,-0.5+j*boxWidth);
@@ -177,7 +226,7 @@ class TurtleGraph {
                 const buffer = gl.createBuffer();
                 const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-                console.log(pointBox);
+                //console.log(pointBox);
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointBox), gl.STATIC_DRAW);
                 gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
                 gl.enableVertexAttribArray(a_Position);
@@ -295,6 +344,7 @@ class TurtleGraph {
 
         }
 
+        this.array3d=array3d;
         return array3d;
     }
         gl; x; y; theta;
